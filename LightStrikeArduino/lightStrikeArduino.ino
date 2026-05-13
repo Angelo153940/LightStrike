@@ -1,19 +1,23 @@
 // LEDs
 #include <Adafruit_NeoPixel.h>
-#define PIN_NEO_PIXEL  2   
+#define PIN_NEO_PIXEL  4   
 #define NUM_PIXELS     6  
 #define DELAY_INTERVAL 200
 
 // LDRs
 #define NUM_LDR 6
 #define NUM_PIN_INPUT 6
-#define UMBRAL_LDR 128
+#define UMBRAL_LDR 32
+
+// Vibration Coin
+#define MOTOR_PIN 13
 
 Adafruit_NeoPixel neoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
 byte PIN_INPUT[] = {A0, A1, A2, A3, A4, A5};
 
 void setup() {
   Serial.begin(115200);
+  pinMode(MOTOR_PIN, OUTPUT);
   for(int i = 0; i < NUM_PIN_INPUT; i++) {
     pinMode(PIN_INPUT[i], INPUT);
   }
@@ -56,5 +60,16 @@ void loop() {
     neoPixel.setPixelColor(pixel, neoPixel.Color(255, 0, 0)); 
   }
   
-  neoPixel.show();   
+  neoPixel.show();  
+
+  // Recibir datos de Processing
+  if (Serial.available() > 0) {
+      if(Serial.parseInt() == 1) {
+        digitalWrite(MOTOR_PIN, HIGH); 
+        delay(1000);
+        digitalWrite(MOTOR_PIN, LOW);
+        delay(100);
+      }
+      while(Serial.read() != '\n'); // Limpiar buffer
+  }
 }

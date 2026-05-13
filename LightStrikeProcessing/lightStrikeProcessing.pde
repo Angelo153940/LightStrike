@@ -10,7 +10,7 @@ SoundFile sFail;
 
 // Conexión Arduino-Processing
 import processing.serial.*;
-final int UMBRAL_LDR = 128;
+final int UMBRAL_LDR = 32;
 Serial serial;
 
 // Game states
@@ -166,7 +166,7 @@ void drawGetReady() {
 
 void drawInGame() {
   background(0);
-  currentFigure.move();
+  //currentFigure.move();
   currentFigure.draw();
   player.hp.draw();
   fill(255);
@@ -237,6 +237,7 @@ void generateNewFigure() {
 void fail() {
   sFail.play();
   player.hp.loseHP();
+  serial.write("1\n");
   if(player.hp.currentHP <= 0) {
     gameOverPending = true;
     gameOverTime = millis();
@@ -323,7 +324,6 @@ class Player {
   
   boolean allLDRsActive() {
     for (int i = 0; i < ldrsValues.length; i++) {
-      println("LDR " + i + ": " + ldrsValues[i]);
       if (ldrsValues[i] < UMBRAL_LDR) {
         return false;
       }
@@ -384,7 +384,7 @@ class Figure {
     x = width/2;
     y = height/2;
     
-    //Inicializar una velocidad aleatoria para la figura
+    /*//Inicializar una velocidad aleatoria para la figura
     float speed = random(0.1, 0.8);
     float dir = random(TWO_PI);
     vx = cos(dir) * speed;
@@ -392,7 +392,7 @@ class Figure {
     
     // Rotación inicial aleatoria y velocidad de rotación
     angle = random(TWO_PI);
-    rotationSpeed = random(-0.013, 0.013);
+    rotationSpeed = random(-0.013, 0.013);*/
   }
 
   void draw() {
@@ -404,18 +404,18 @@ class Figure {
     noStroke();
     rectMode(CENTER); // Hace que el origen de coordenadas de todos los rectángulos esté en el centro. Se usa para luego rotarlos respecto al centro.
     if(type == 0) {  
-      rect(0, 0, 200, 10); // Horizontal
+      rect(0, 0, 400, 75); // Horizontal
     } 
     else if(type == 1) {
-      rect(0, 0, 10, 200); // Vertical
+      rect(0, 0, 100, 400); // Vertical
     } 
     else if(type == 2){
       rotate(PI / 4);
-      rect(0, 0, 200, 10); // Diagonal \
+      rect(0, 0, 400, 100); // Diagonal \
     }
     else if(type == 3){
       rotate(-PI / 4);
-      rect(0, 0, 200, 10); // Diagonal /
+      rect(0, 0, 400, 100); // Diagonal /
     }
   
     popMatrix(); // Restaurar estado del sistema
@@ -440,6 +440,7 @@ void serialEvent(Serial p) {
     
     for(int i = 0; i < 6; i++) {
       player.ldrsValues[i] = int(parts[i]);
+      println("LDR " + i + ": " + int(parts[i]));
     }
   }
   catch(Exception e){
